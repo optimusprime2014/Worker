@@ -2,61 +2,78 @@ package com.mini.crm.worker.controller;
 
 import com.mini.crm.worker.controller.data.Response;
 import com.mini.crm.worker.controller.data.ResponseStatus;
-import com.mini.crm.worker.service.impl.EmployeeServiceImpl;
+import com.mini.crm.worker.model.Employee;
+import com.mini.crm.worker.repo.EmployeeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
 
 @RestController
 @RequestMapping(value = "/api/employee", produces = "application/json; charset=UTF-8")
 public class EmployeeController {
 
     @Autowired
-    EmployeeServiceImpl employeeService;
+    private EmployeeRepo employeeRepo;
 
     @PostMapping
-    public Response save(@RequestParam("first_name") String firstName,
-                         @RequestParam("last_name") String lastName,
-                         @RequestParam("email") String email,
-                         @RequestParam("phone") String phone) {
+    public Response create(@RequestParam("name") String name,
+                           @RequestParam("email") String email,
+                           @RequestParam("phone") String phone) {
         return Response.builder()
                 .status(ResponseStatus.OK)
-                .data(employeeService.save(firstName,lastName,email,phone))
+                .data(employeeRepo.save(new Employee(name, email, phone)))
+                .message("Employee was saved")
                 .build();
     }
 
     @GetMapping
-    public Response get(@RequestParam("first_name") String firstName) {
+    public Response get(@RequestParam("name") String name) {
+        var employee = employeeRepo.findByName(name);
         return Response.builder()
                 .status(ResponseStatus.OK)
-                .data(employeeService.get(firstName))
+                .data(employee)
+                .data((employee == null) ? "Couldn't find employee: " + name : "")
                 .build();
     }
 
     @PutMapping
-    public Response edit(@RequestParam("new_first_name") String newFirstName,
-                         @RequestParam("new_last_name") String newLastName,
-                         @RequestParam("new_email") String newEmail,
-                         @RequestParam("new_phone") String newPhone,
-                         @RequestParam("old_first_name") String oldFirstName) {
-        return Response.builder()
+    public Response update(@RequestParam("new_name") String newName,
+                         @RequestParam("old_name") String oldName) {
+        Response<Employee> resp = Response.<Employee>builder()
                 .status(ResponseStatus.OK)
-                .data(employeeService.edit(newFirstName, newLastName, newEmail, newPhone, oldFirstName))
+                .message("Couldn't find employee: " + oldName)
                 .build();
+        var employee = employeeRepo.findByName(oldName);
+        if (employee != null) {
+            employee.setName(newName);
+            employeeRepo.save(employee);
+            resp.setData(employee);
+            resp.setMessage("Employee was updated");
+        }
+        return resp;
     }
 
     @DeleteMapping
-    public Response remove(@RequestParam("first_name") String firstName) {
-        employeeService.remove(firstName);
-        return Response.builder()
+    public Response delete(@RequestParam("name") String name) {
+        Response<Employee> resp = Response.<Employee>builder()
                 .status(ResponseStatus.OK)
+                .message("Couldn't find employee: " + name)
                 .build();
+
+        var employee = employeeRepo.findByName(name);
+        if (employee != null) {
+            employeeRepo.delete(employee);
+            resp.setMessage("Employee was deleted");
+        }
+        return resp;
     }
 
     @GetMapping(value = "/all")
     public Response getAll() {
         return Response.builder()
                 .status(ResponseStatus.OK)
-                .data(employeeService.getAll())
+                .data(Arrays.asList(employeeRepo.findAll()))
                 .build();
     }
 }

@@ -1,24 +1,10 @@
 # Worker
-Spring Boot application that provides RESTful service for CRUD operations
-for company employees.
+Spring Boot application what provides RESTfull service for CRUD operations
+for company employees. Show relations between members and company.
 
 ![Alt text](Screenshot_graph.png?raw=true "Graph Api")
 
-### Deployment database
-
-Install DB-server via [doc](https://orientdb.org/getting-started)
-
-Create database:
-
-* database   : ```workero```
-
-* login      : ```root```
-
-* password   : ```2019```
-
-* storage    : ```plocal```
-
-* type       : ```graph```
+### [Demo](http://162.250.120.118:8002/swagger-ui.html)
 
 ### Build
 
@@ -48,24 +34,10 @@ Run
 
 Where - is an absolute path to jar-file.
 
-### Server STATUS
-
-Go to link:
-
-```<serverIp>:<serverPORT>/actuator```
-
-For example,
-[http://localhost:8888/actuator](http://localhost:8888/actuator)
-
 ### API
 
-Full info about documentation of REST locate into
+Full info about a documentation of REST locate into
 
 ```<serverIp>:<serverPORT>/swagger-ui.html```
 
-For example, 
-[http://localhost:8888/swagger-ui.html](http://localhost:8888/swagger-ui.html)
-
-![Alt text](Screenshot_swagger.png?raw=true "Swagger documentation")
-
-You can see it after start application.
+For example, [Localhost](http://localhost:8002/swagger-ui.html). You can see it after start application.

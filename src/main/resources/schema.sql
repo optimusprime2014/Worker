@@ -1,6 +1,0 @@
-DROP CLASS Employee UNSAFE;
-
-DROP CLASS Company UNSAFE;
-
-DROP CLASS Relation UNSAFE;
-

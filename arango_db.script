@@ -1,0 +1,4 @@
+
+db._createDocumentCollection("Company");
+db._createDocumentCollection("Employee");
+db._createEdgeCollection("employeeOf");

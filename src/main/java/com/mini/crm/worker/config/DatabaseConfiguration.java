@@ -1,61 +1,43 @@
 package com.mini.crm.worker.config;
 
-import com.mini.crm.worker.model.ClassName;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.metadata.schema.OClass;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.arangodb.ArangoDB;
+import com.arangodb.springframework.annotation.EnableArangoRepositories;
+import com.arangodb.springframework.config.ArangoConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class DatabaseConfiguration {
+@EnableArangoRepositories(basePackages = {"com.mini.crm.worker"})
+public class DatabaseConfiguration implements ArangoConfiguration {
+    public static final String COMPANY = "Company";
+    public static final String EMPLOYEE = "Employee";
+    public static final String EMPLOYEE_OF = "employeeOf";
 
-    private static final String DB_LEVEL = "remote:localhost";
+    @Value("${arangodb.host}")
+    private String host;
 
-    private OrientDB orientDB;
-    private ODatabaseSession dbSession;
+    @Value("${arangodb.port}")
+    private String port;
 
-    @Autowired
-    WorkerConfiguration configuration;
+    @Value("${arangodb.user}")
+    private String user;
 
-    public void initDB() {
-        //start-point init db
-        orientDB = new OrientDB(DB_LEVEL, OrientDBConfig.defaultConfig());
-        dbSession = orientDB.open("workero", "root", "2019");
+    @Value("${arangodb.password}")
+    private String pwd;
 
-        //create company vertex
-        OClass company = dbSession.getClass(ClassName.V_COMPANY.toString());
-        if (company == null) {
-            company = dbSession.createVertexClass(ClassName.V_COMPANY.toString());
-        }
+    @Value("${arangodb.database}")
+    private String dbName;
 
-        //create employee vertex
-        OClass employee = dbSession.getClass(ClassName.V_EMPLOYEE.toString());
-        if (employee == null) {
-            employee = dbSession.createVertexClass(ClassName.V_EMPLOYEE.toString());
-        }
-
-        //create relation edge
-        OClass relation = dbSession.getClass(ClassName.E_RELATION.toString());
-        if (relation == null) {
-            relation = dbSession.createEdgeClass(ClassName.E_RELATION.toString());
-        }
-
-        closeSession();
+    @Override
+    public ArangoDB.Builder arango() {
+        return new ArangoDB.Builder()
+                .host(host, Integer.parseInt(port))
+                .user(user)
+                .password(pwd);
     }
 
-    public void openSession() {
-        orientDB = new OrientDB(DB_LEVEL, OrientDBConfig.defaultConfig());
-        dbSession = orientDB.open(configuration.getDbName(), configuration.getDbUser(), configuration.getDbPass());
-    }
-
-    public ODatabaseSession getDbSession() {
-        return dbSession;
-    }
-
-    public void closeSession() {
-        dbSession.close();
-        orientDB.close();
+    @Override
+    public String database() {
+        return dbName;
     }
 }
